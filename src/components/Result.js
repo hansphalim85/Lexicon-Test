@@ -1,41 +1,27 @@
 import React from 'react';
 import TotalTime from './TotalTime';
+import StartAgain from './StartAgain';
 
 class Result extends React.Component {
     render() {
-        if (this.props.success === true) {
-            return (
-                <div>
-                    <div>
-                        Success! Congratulations on Finding Falcone. King Shan
-                        is mighty pleased.
-                        <br />
-                        <br />
-                        <TotalTime time={this.props.time} />
-                        <br />
-                        Planet found: {this.props.planet}
-                        <br />
-                        <br />
-                        <button onClick={this.props.resetState}>
-                            Start Again
-                        </button>
-                    </div>
+        return (
+            <div>
+                {this.props.resultMessage}
+                <br />
+                <br />
+                <div hidden={!this.props.success}>
+                    <TotalTime time={this.props.time}/>
+                    <br />
+                    Planet found: {this.props.planet}
                 </div>
-            );
-        } else {
-            return (
-                <div>
-                    <div>
-                        Failed! Sorry please try again!
-                        <br />
-                        <br />
-                        <button onClick={this.props.resetState}>
-                            Start Again
-                        </button>
-                    </div>
-                </div>
-            );
-        }
+                <br />
+                <br />
+                <StartAgain
+                    resetState={this.props.resetState}
+                    buttonText="Start Again"
+                />
+            </div>
+        );
     }
 }
 

@@ -21,7 +21,8 @@ class App extends React.Component {
         findAPI: false,
         resultPlanet: '',
         loaded: true,
-        finders: 4
+        finders: 4,
+        resultMessage:''
     };
 
     componentDidMount() {
@@ -46,12 +47,19 @@ class App extends React.Component {
             .then((response) => response.json())
             .then((responseJson) => {
                 if (responseJson.status === 'false') {
-                    this.setState({ success: false });
+                    this.setState({ 
+                        success: false,
+                        findAPI: true,
+                        resultMessage:'Failed! Sorry please try again!'
+                    });
                 } else {
-                    this.setState({ success: true });
-                    this.setState({ resultPlanet: responseJson.planet_name });
+                    this.setState({ 
+                        success: true,
+                        findAPI: true,
+                        resultPlanet: responseJson.planet_name,
+                        resultMessage:'Success! Congratulations on Finding Falcone. King Shan is mighty pleased.'
+                    });
                 }
-                this.setState({ findAPI: true });
             })
             .catch((error) => {
                 console.error(error);
@@ -228,6 +236,7 @@ class App extends React.Component {
                         planet={this.state.resultPlanet}
                         resetState={this.resetState}
                         success={this.state.success}
+                        resultMessage={this.state.resultMessage}
                     />
                     <Footer />
                 </div>
