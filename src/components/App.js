@@ -15,13 +15,13 @@ class App extends React.Component {
             distance: [],
             vehicles: []
         },
-        time: 100,
+        time: 0,
         readyToGo: false,
         success: false,
         findAPI: false,
         resultPlanet: '',
         loaded: true,
-        finders: 4,
+        finders: process.env.REACT_APP_FINDERS,
         resultMessage:''
     };
 
@@ -36,7 +36,7 @@ class App extends React.Component {
     }
 
     findingFalcon(request) {
-        fetch('https://findfalcone.herokuapp.com/find', {
+        fetch(process.env.REACT_APP_FIND_URL, {
             method: 'POST',
             body: JSON.stringify(request),
             headers: {
@@ -73,7 +73,7 @@ class App extends React.Component {
         const missionVehicles = missions.vehicles;
         let request = {};
 
-        fetch('https://findfalcone.herokuapp.com/token', {
+        fetch(process.env.REACT_APP_TOKEN_URL, {
             method: 'POST',
             headers: {
                 Accept: 'application/json',
@@ -182,7 +182,7 @@ class App extends React.Component {
     }
 
     loadVehicles() {
-        fetch('https://findfalcone.herokuapp.com/vehicles', {
+        fetch(process.env.REACT_APP_VEHICLE_URL, {
             method: 'GET',
             headers: {
                 Accept: 'application/json',
@@ -205,7 +205,7 @@ class App extends React.Component {
     }
 
     loadPlanets() {
-        fetch('https://findfalcone.herokuapp.com/planets', {
+        fetch(process.env.REACT_APP_PLANET_URL, {
             method: 'GET',
             headers: {
                 Accept: 'application/json',
