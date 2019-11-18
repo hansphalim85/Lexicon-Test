@@ -1,0 +1,40 @@
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    text-align: center;
+}
+div#header_bar {
+    text-align: right;
+}
+div#header_bar button,
+div#header_bar a {
+    border: none;
+    cursor: pointer;
+    background: none;
+    font-size: 12px;
+    text-decoration: none;
+    color: black;
+    padding: 0px;
+    border-bottom: 1px solid black;
+}
+
+div#airbase_wrapper {
+    float: left;
+    width: 100%;
+}
+
+div.airbase_finders {
+    float: left;
+    margin: 1%;
+    width: 18%;
+}
+
+li.vehicle {
+    text-align: left;
+}
+
+footer {
+    clear: both;
+    position: absolute;
+    width: 100%;
+    bottom: 10px;
+}
