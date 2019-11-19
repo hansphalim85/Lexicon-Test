@@ -4,7 +4,7 @@ import Footer from './Footer';
 import Result from './Result';
 import Airbase from './Airbase';
 import FailLoad from './FailLoad';
-import { notEmpty, getTimeTaken } from '../helpers';
+import { notEmpty, getTimeTaken, callFetch } from '../helpers';
 
 class App extends React.Component {
     state = {
@@ -35,54 +35,39 @@ class App extends React.Component {
         window.location.reload();
     }
 
-    findingFalcon(request) {
-        fetch(process.env.REACT_APP_FIND_URL, {
-            method: 'POST',
-            body: JSON.stringify(request),
-            headers: {
-                Accept: 'application/json',
-                'Content-Type': 'application/json'
+    async findingFalcon(request) {
+        const FindResponse = await callFetch(process.env.REACT_APP_FIND_URL, 'POST', request);
+
+        if (FindResponse !== false) {
+            if (FindResponse.status === 'false') {
+                this.setState({ 
+                    success: false,
+                    findAPI: true,
+                    resultMessage:'Failed! Sorry please try again!'
+                });
+            } else {
+                this.setState({ 
+                    success: true,
+                    findAPI: true,
+                    resultPlanet: FindResponse.planet_name,
+                    resultMessage:'Success! Congratulations on Finding Falcone. King Shan is mighty pleased.'
+                });
             }
-        })
-            .then((response) => response.json())
-            .then((responseJson) => {
-                if (responseJson.status === 'false') {
-                    this.setState({ 
-                        success: false,
-                        findAPI: true,
-                        resultMessage:'Failed! Sorry please try again!'
-                    });
-                } else {
-                    this.setState({ 
-                        success: true,
-                        findAPI: true,
-                        resultPlanet: responseJson.planet_name,
-                        resultMessage:'Success! Congratulations on Finding Falcone. King Shan is mighty pleased.'
-                    });
-                }
-            })
-            .catch((error) => {
-                console.error(error);
-                alert('Please try again');
-            });
+        } else {
+            alert('Please try again');
+        }
     }
 
-    prepareFindingFalcon() {
+    async prepareFindingFalcon() {
         const missions = { ...this.state.missions };
         const missionPlanets = missions.planets;
         const missionVehicles = missions.vehicles;
         let request = {};
 
-        fetch(process.env.REACT_APP_TOKEN_URL, {
-            method: 'POST',
-            headers: {
-                Accept: 'application/json',
-                'Content-Type': 'application/json'
-            }
-        })
-            .then((response) => response.json())
-            .then((responseJson) => {
-                request['token'] = responseJson.token;
+        const tokenResponse = await callFetch(process.env.REACT_APP_TOKEN_URL, 'POST');
+
+        if (tokenResponse !== false) {
+            request['token'] = tokenResponse.token;
 
                 let planets = [];
                 Object.keys(missionPlanets).map((p) => {
@@ -99,11 +84,9 @@ class App extends React.Component {
                 request['vehicle_names'] = vehicles;
 
                 this.findingFalcon(request);
-            })
-            .catch((error) => {
-                console.error(error);
-                alert('Please try again1');
-            });
+        } else {
+            alert('Please try again1');
+        }
     }
 
     setMissionPlanet(key, planetKey) {
@@ -174,58 +157,45 @@ class App extends React.Component {
         this.setState({ planets: planets });
         this.setState({ time: timeTaken });
 
-        if (findersReady === this.state.finders) {
+        if (findersReady === parseInt(this.state.finders)) {
             this.setState({ readyToGo: true });
         } else {
             this.setState({ readyToGo: false });
         }
     }
 
-    loadVehicles() {
-        fetch(process.env.REACT_APP_VEHICLE_URL, {
-            method: 'GET',
-            headers: {
-                Accept: 'application/json',
-                'Content-Type': 'application/json'
-            }
-        })
-            .then((response) => response.json())
-            .then((responseJson) => {
-                Object.keys(responseJson).map((key) => {
-                    let vehicles = { ...this.state.vehicles };
-                    vehicles[key] = responseJson[key];
-                    vehicles[key].taken = 0;
-                    this.setState({ vehicles });
-                    return true;
-                });
-            })
-            .catch((error) => {
-                this.setState({ loaded: false });
+    async loadVehicles() {
+        const vehiclesResponse = await callFetch(process.env.REACT_APP_VEHICLE_URL, 'GET');
+
+        if (vehiclesResponse !== false) {
+            Object.keys(vehiclesResponse).map((key) => {
+                let vehicles = { ...this.state.vehicles };
+                vehicles[key] = vehiclesResponse[key];
+                vehicles[key].taken = 0;
+                this.setState({ vehicles });
+                return true;
             });
+        } else {
+            this.setState({ loaded: false });
+        }
     }
 
-    loadPlanets() {
-        fetch(process.env.REACT_APP_PLANET_URL, {
-            method: 'GET',
-            headers: {
-                Accept: 'application/json',
-                'Content-Type': 'application/json'
-            }
-        })
-            .then((response) => response.json())
-            .then((responseJson) => {
-                Object.keys(responseJson).map((key) => {
-                    let planets = { ...this.state.planets };
-                    planets[key] = responseJson[key];
-                    planets[key].available = true;
-                    this.setState({ planets });
-                    return true;
-                });
-            })
-            .catch((error) => {
-                this.setState({ loaded: false });
+    async loadPlanets() {
+        const planetResponse = await callFetch(process.env.REACT_APP_PLANET_URL, 'GET');
+
+        if (planetResponse !== false) {
+            Object.keys(planetResponse).map((key) => {
+                let planets = { ...this.state.planets };
+                planets[key] = planetResponse[key];
+                planets[key].available = true;
+                this.setState({ planets });
+                return true;
             });
+        } else {
+            this.setState({ loaded: false });
+        }
     }
+
     render() {
         if (this.state.findAPI) {
             return (
